@@ -53,20 +53,20 @@ public class CropImageActivity extends MonitoredActivity {
 	public static final int CROP_MSG = 10;	
     public static final int CROP_MSG_INTERNAL = 100;    
     
-    // These are various options can be specified in the intent.
-                                    // panda.
+
     private final Handler mHandler = new Handler();
 
     private boolean mCircleCrop = false;
     // These options specifiy the output image size and whether we should
     // scale the output to fit it (or just crop it).
     private int mAspectX;
-    private int mAspectY; // CR: two definitions per line == sad
+    private int mAspectY; // CR: two definitions per line == sad panda.
     private int mOutputX;
     private int mOutputY;
     private boolean mScale;
     private boolean mScaleUp = true;
     private Uri mSaveUri = null;
+    // These are various options can be specified in the intent.
     private Bitmap.CompressFormat mOutputFormat = Bitmap.CompressFormat.JPEG; // only
                                                                               // used
                                                                               // with
@@ -84,15 +84,11 @@ public class CropImageActivity extends MonitoredActivity {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         mContentResolver = getContentResolver();
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_cropimage);
 
         mImageView = (CropImageView) findViewById(R.id.image);
-
-        // CR: remove TODO's.
-        // TODO: we may need to show this indicator for the main gallery
-        // application
-        // MenuHelper.showStorageToast(this);
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -102,6 +98,7 @@ public class CropImageActivity extends MonitoredActivity {
                 mCircleCrop = true;
                 mAspectX = 1;
                 mAspectY = 1;
+                //TODO Add some code to make fomat is png when crop a circle image.
             }
             mSaveUri = extras.getParcelable(CropConfig.EXTRA_OUTPUT);
             if (mSaveUri != null) {
@@ -165,11 +162,6 @@ public class CropImageActivity extends MonitoredActivity {
 
         makeCropView();
 
-//        mImageView.invalidate();
-//        if (mImageView.mHighlightViews.size() == 1) {
-//            mImageView.mCropView = mImageView.mHighlightViews.get(0);
-//            mImageView.mCropView.setFocus(true);
-//        }
     }
 
     /**
@@ -184,7 +176,7 @@ public class CropImageActivity extends MonitoredActivity {
         }
 
         mSaving = true;
-        mImageView.setSaving(mSaving);
+        mImageView.setSaving(true);
 
         Rect r = mImageView.getCropRect();
 
@@ -258,10 +250,10 @@ public class CropImageActivity extends MonitoredActivity {
 
         // Return the cropped image directly or save it to the specified URI.
         Bundle myExtras = getIntent().getExtras();
-        if (myExtras != null && (myExtras.getParcelable("data") != null || myExtras.getBoolean("return-data"))) {
+        if (myExtras != null && (myExtras.getParcelable(CropConfig.EXTRA_DATA) != null || myExtras.getBoolean(CropConfig.EXTRA_RETURN_DATA))) {
             Bundle extras = new Bundle();
-            extras.putParcelable("data", croppedImage);
-            setResult(RESULT_OK, (new Intent()).setAction("inline-data").putExtras(extras));
+            extras.putParcelable(CropConfig.EXTRA_DATA, croppedImage);
+            setResult(RESULT_OK, (new Intent()).setAction(CropConfig.ACTION_INLINE_DATA).putExtras(extras));
             finish();
         } else {
             final Bitmap b = croppedImage;
@@ -368,121 +360,4 @@ public class CropImageActivity extends MonitoredActivity {
         hv.setFocus(true);
         mImageView.setCropView(hv);
     }
-
-//    static private final HashMap<Context, MediaScannerConnection> mConnectionMap = new HashMap<Context, MediaScannerConnection>();
-//
-//    static public void launchCropperOrFinish(final Context context, final MediaItem item) {
-//        final Bundle myExtras = ((Activity) context).getIntent().getExtras();
-//        String cropValue = myExtras != null ? myExtras.getString("crop") : null;
-//        final String contentUri = item.mInputUri;
-//        if (contentUri == null)
-//            return;
-//        if (cropValue != null) {
-//            Bundle newExtras = new Bundle();
-//            if (cropValue.equals("circle")) {
-//                newExtras.putString("circleCrop", "true");
-//            }
-//            Intent cropIntent = new Intent();
-//            cropIntent.setData(Uri.parse(contentUri));
-//            cropIntent.setClass(context, CropImageActivity.class);
-//            cropIntent.putExtras(newExtras);
-//            // Pass through any extras that were passed in.
-//            cropIntent.putExtras(myExtras);
-//            ((Activity) context).startActivityForResult(cropIntent, CropImageActivity.CROP_MSG);
-//        } else {
-//            if (contentUri.startsWith("http://")) {
-//                // This is a http uri, we must save it locally first and
-//                // generate a content uri from it.
-//                final ProgressDialog dialog = ProgressDialog.show(context, context.getResources().getString(R.string.initializing),
-//                        context.getResources().getString(R.string.running_face_detection), true, false);
-//                if (contentUri != null) {
-//                    MediaScannerConnection.MediaScannerConnectionClient client = new MediaScannerConnection.MediaScannerConnectionClient() {
-//                        public void onMediaScannerConnected() {
-//                            MediaScannerConnection connection = mConnectionMap.get(context);
-//                            if (connection != null) {
-////    							try {
-////    								final String downloadDirectoryPath = LocalDataSource.DOWNLOAD_BUCKET_NAME;
-////    								File downloadDirectory = new File(downloadDirectoryPath);
-////    								downloadDirectory.mkdirs();
-////    								final String path = UriTexture.writeHttpDataInDirectory(context, contentUri,
-////    										downloadDirectoryPath);
-////    								if (path != null) {
-////    									connection.scanFile(path, item.mMimeType);
-////    								} else {
-////    									shutdown("");
-////    								}
-////    							} catch (Exception e) {
-////    								shutdown("");
-////    							}
-//                            }
-//                        }
-
-//                        public void onScanCompleted(String path, Uri uri) {
-//                            shutdown(uri.toString());
-//                        }
-//
-//                        public void shutdown(String uri) {
-//                            dialog.dismiss();
-//                            performReturn(context, myExtras, uri.toString());
-//                            MediaScannerConnection connection = mConnectionMap.get(context);
-//                            if (connection != null) {
-//                                connection.disconnect();
-//                                mConnectionMap.put(context, null);
-//                            }
-//                        }
-//                    };
-//                    MediaScannerConnection connection = new MediaScannerConnection(context, client);
-//                    mConnectionMap.put(context, connection);
-//                    connection.connect();
-//                }
-//            } else {
-//                performReturn(context, myExtras, contentUri);
-//            }
-//        }
-//    }
-//
-//    static private void performReturn(Context context, Bundle myExtras, String contentUri) {
-//        Intent result = new Intent(null, Uri.parse(contentUri));
-//        boolean resultSet = false;
-//        if (myExtras != null) {
-//            final Uri outputUri = (Uri)myExtras.getParcelable(MediaStore.EXTRA_OUTPUT);
-//            if (outputUri != null) {
-//                Bundle extras = new Bundle();
-//                OutputStream outputStream = null;
-//                try {
-//                    outputStream = context.getContentResolver().openOutputStream(outputUri);
-//                    if (outputStream != null) {
-//                        InputStream inputStream = context.getContentResolver().openInputStream(Uri.parse(contentUri));
-//                        Utils.copyStream(inputStream, outputStream);
-//                        Util.closeSilently(inputStream);
-//                    }
-//                    ((Activity) context).setResult(Activity.RESULT_OK, new Intent(outputUri.toString())
-//                            .putExtras(extras));
-//                    resultSet = true;
-//                } catch (Exception ex) {
-//                    Log.e(TAG, "Cannot save to uri " + outputUri.toString());
-//                } finally {
-//                    Util.closeSilently(outputStream);
-//                }
-//            }
-//        }
-//        if (!resultSet && myExtras != null && myExtras.getBoolean("return-data")) {
-//            // The size of a transaction should be below 100K.
-//            Bitmap bitmap = null;
-//            try {
-//                bitmap = UriTexture.createFromUri(context, contentUri, 1024, 1024, 0, null);
-//            } catch (IOException e) {
-//                ;
-//            } catch (URISyntaxException e) {
-//                ;
-//            }
-//            if (bitmap != null) {
-//                result.putExtra("data", bitmap);
-//            }
-//        }
-//        if (!resultSet)
-//            ((Activity) context).setResult(Activity.RESULT_OK, result);
-//        ((Activity) context).finish();
-//    }
-
 }
