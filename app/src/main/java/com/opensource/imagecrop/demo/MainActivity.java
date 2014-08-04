@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.opensource.imagecrop.CropConfig;
 import com.opensource.imagecrop.CropImageActivity;
 
 
@@ -88,6 +89,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         intent.setData(data);
         Bundle extras = new Bundle();
 //        extras.putString(CropConfig.EXTRA_CIRCLE_CROP, "Circle");
+        extras.putInt(CropConfig.EXTRA_ASPECT_X, 1);
+        extras.putInt(CropConfig.EXTRA_ASPECT_Y, 1);
         intent.putExtras(extras);
         startActivity(intent);
     }
