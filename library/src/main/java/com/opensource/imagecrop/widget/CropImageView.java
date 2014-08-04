@@ -102,8 +102,10 @@ public class CropImageView  extends ImageViewTouchBase {
                 break;
             // CR: vertical space before case blocks.
             case MotionEvent.ACTION_UP:
-                centerBasedOnHighlightView(mMotionHighlightView);
-                mMotionHighlightView.setMode(HighlightView.ModifyMode.None);
+                if(null != mMotionHighlightView) {
+                    centerBasedOnHighlightView(mMotionHighlightView);
+                    mMotionHighlightView.setMode(HighlightView.ModifyMode.None);
+                }
                 mMotionHighlightView = null;
                 break;
             case MotionEvent.ACTION_MOVE:
