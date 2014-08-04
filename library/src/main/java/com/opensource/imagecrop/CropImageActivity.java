@@ -35,7 +35,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.opensource.imagecrop.utils.FileUtil;
 import com.opensource.imagecrop.utils.Util;
 import com.opensource.imagecrop.widget.CropImageView;
 import com.opensource.imagecrop.widget.HighlightView;
@@ -121,7 +120,7 @@ public class CropImageActivity extends MonitoredActivity {
             // Create a MediaItem representing the URI.
             mInputUri = intent.getData();
 
-            File imageFile = FileUtil.parseUriToFile(this, mInputUri);
+            File imageFile = Util.parseUriToFile(this, mInputUri);
 
 
             if(null != imageFile) {
@@ -291,7 +290,7 @@ public class CropImageActivity extends MonitoredActivity {
         } else {
             Bundle extras = new Bundle();
             extras.putString(CropConfig.EXTRA_RECT, mImageView.getCropRect().toString());
-            File oldFile = FileUtil.parseUriToFile(this, mInputUri);
+            File oldFile = Util.parseUriToFile(this, mInputUri);
             File directory = new File(oldFile.getParent());
             int x = 0;
             String fileName = oldFile.getName();
@@ -315,7 +314,7 @@ public class CropImageActivity extends MonitoredActivity {
             int[] degree = new int[1];
             Double latitude = null;
             Double longitude = null;
-            Uri newUri = FileUtil.addImage(mContentResolver, title,
+            Uri newUri = Util.addImage(mContentResolver, title,
                     System.currentTimeMillis() / 1000, System.currentTimeMillis(), latitude,
                     longitude, directory.toString(), finalFileName,
                     croppedImage, null, degree);
