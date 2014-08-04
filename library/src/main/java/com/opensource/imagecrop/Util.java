@@ -17,19 +17,12 @@
 package com.opensource.imagecrop;
 
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
-import android.webkit.MimeTypeMap;
 
 import java.io.Closeable;
 
@@ -37,9 +30,6 @@ import java.io.Closeable;
  * Collection of utility functions used in this package.
  */
 public class Util {
-    private static final String TAG = "db.Util";
-    private static final String MAPS_PACKAGE_NAME = "com.google.android.apps.maps";
-    private static final String MAPS_CLASS_NAME = "com.google.android.maps.MapsActivity";
 
     private Util() {
     }
@@ -128,44 +118,7 @@ public class Util {
         return b2;
     }
 
-    /**
-     * Creates a centered bitmap of the desired size. Recycles the input.
-     * 
-     * @param source
-     */
-    public static Bitmap extractMiniThumb(Bitmap source, int width, int height) {
-        return Util.extractMiniThumb(source, width, height, true);
-    }
 
-    public static Bitmap extractMiniThumb(Bitmap source, int width, int height, boolean recycle) {
-        if (source == null) {
-            return null;
-        }
-
-        float scale;
-        if (source.getWidth() < source.getHeight()) {
-            scale = width / (float) source.getWidth();
-        } else {
-            scale = height / (float) source.getHeight();
-        }
-        Matrix matrix = new Matrix();
-        matrix.setScale(scale, scale);
-        Bitmap miniThumbnail = transform(matrix, source, width, height, false);
-
-        if (recycle && miniThumbnail != source) {
-            source.recycle();
-        }
-        return miniThumbnail;
-    }
-
-    public static <T> int indexOf(T[] array, T s) {
-        for (int i = 0; i < array.length; i++) {
-            if (array[i].equals(s)) {
-                return i;
-            }
-        }
-        return -1;
-    }
 
     public static void closeSilently(Closeable c) {
         if (c == null)
@@ -185,17 +138,6 @@ public class Util {
         } catch (Throwable t) {
             // do nothing
         }
-    }
-
-    public static void Assert(boolean cond) {
-        if (!cond) {
-            throw new AssertionError();
-        }
-    }
-
-    public static boolean equals(String a, String b) {
-        // return true if both string are null or the content equals
-        return a == b || a.equals(b);
     }
 
     private static class BackgroundJob extends MonitoredActivity.LifeCycleAdapter implements Runnable {
@@ -254,47 +196,4 @@ public class Util {
         new Thread(new BackgroundJob(activity, job, dialog, handler)).start();
     }
 
-    // Returns an intent which is used for "set as" menu items.
-    public static Intent createSetAsIntent(Uri uri, String mimeType) {
-        // Infer MIME type if missing for file URLs.
-        if (uri.getScheme().equals("file")) {
-            String path = uri.getPath();
-            int lastDotIndex = path.lastIndexOf('.');
-            if (lastDotIndex != -1) {
-                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                        uri.getPath().substring(lastDotIndex + 1).toLowerCase());
-            }
-        }
-
-        Intent intent = new Intent(Intent.ACTION_ATTACH_DATA);
-        intent.setDataAndType(uri, mimeType);
-        intent.putExtra("mimeType", mimeType);
-        return intent;
-    }
-
-    // Opens Maps application for a map with given latlong. There is a bug
-    // which crashes the Browser when opening this kind of URL. So, we open
-    // it in GMM instead. For those platforms which have no GMM installed,
-    // the default Maps application will be chosen.
-
-    public static void openMaps(Context context, double latitude, double longitude) {
-        try {
-            // Try to open the GMM first
-
-            // We don't use "geo:latitude,longitude" because it only centers
-            // the MapView to the specified location, but we need a marker
-            // for further operations (routing to/from).
-            // The q=(lat, lng) syntax is suggested by geo-team.
-            String url = String.format("http://maps.google.com/maps?f=q&q=(%s,%s)", latitude, longitude);
-            ComponentName compName = new ComponentName(MAPS_PACKAGE_NAME, MAPS_CLASS_NAME);
-            Intent mapsIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url)).setComponent(compName);
-            context.startActivity(mapsIntent);
-        } catch (ActivityNotFoundException e) {
-            // Use the "geo intent" if no GMM is installed
-            Log.e(TAG, "GMM activity not found!", e);
-            String url = String.format("geo:%s,%s", latitude, longitude);
-            Intent mapsIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            context.startActivity(mapsIntent);
-        }
-    }
 }
