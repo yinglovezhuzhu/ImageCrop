@@ -31,8 +31,6 @@ import android.provider.MediaStore;
 import android.text.format.Formatter;
 import android.util.Log;
 
-import com.opensource.imagecrop.Util;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

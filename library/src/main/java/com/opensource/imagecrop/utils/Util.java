@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.opensource.imagecrop;
+package com.opensource.imagecrop.utils;
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
@@ -23,6 +23,8 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+
+import com.opensource.imagecrop.MonitoredActivity;
 
 import java.io.Closeable;
 

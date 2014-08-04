@@ -36,6 +36,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.opensource.imagecrop.utils.FileUtil;
+import com.opensource.imagecrop.utils.Util;
 import com.opensource.imagecrop.widget.CropImageView;
 import com.opensource.imagecrop.widget.HighlightView;
 

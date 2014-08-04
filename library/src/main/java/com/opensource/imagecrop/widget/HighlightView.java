@@ -52,9 +52,9 @@ public class HighlightView {
 
     private void init() {
         android.content.res.Resources resources = mContext.getResources();
-        mResizeDrawableWidth = resources.getDrawable(R.drawable.camera_crop_width);
-        mResizeDrawableHeight = resources.getDrawable(R.drawable.camera_crop_height);
-        mResizeDrawableDiagonal = resources.getDrawable(R.drawable.indicator_autocrop);
+        mResizeDrawableWidth = resources.getDrawable(R.drawable.ic_crop_width);
+        mResizeDrawableHeight = resources.getDrawable(R.drawable.ic_crop_height);
+        mResizeDrawableDiagonal = resources.getDrawable(R.drawable.ic_crop_auto);
     }
 
     boolean mIsFocused;
