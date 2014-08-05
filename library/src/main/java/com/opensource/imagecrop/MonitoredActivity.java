@@ -60,8 +60,9 @@ public class MonitoredActivity extends Activity {
     }
 
     public void addLifeCycleListener(LifeCycleListener listener) {
-        if (mListeners.contains(listener))
+        if (mListeners.contains(listener)) {
             return;
+        }
         mListeners.add(listener);
     }
 
@@ -78,10 +79,10 @@ public class MonitoredActivity extends Activity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onResume() {
+        super.onResume();
         for (LifeCycleListener listener : mListeners) {
-            listener.onActivityDestroyed(this);
+            listener.onActivityResumed(this);
         }
     }
 
@@ -94,10 +95,26 @@ public class MonitoredActivity extends Activity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        for (LifeCycleListener listener : mListeners) {
+            listener.onActivityPaused(this);
+        }
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         for (LifeCycleListener listener : mListeners) {
             listener.onActivityStopped(this);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for (LifeCycleListener listener : mListeners) {
+            listener.onActivityDestroyed(this);
         }
     }
 }

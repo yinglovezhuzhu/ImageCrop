@@ -7,30 +7,21 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 /**
- * Use:
+ * Use: This class is
+ *
  * Created by yinglovezhuzhu@gmail.com on 2014-08-04.
  */
 public class CropImageView  extends ImageViewTouchBase {
 
-//    public ArrayList<HighlightView> mHighlightViews = new ArrayList<HighlightView>();
-
     private HighlightView mMotionHighlightView = null;
+    private HighlightView mCropView;
     private float mLastX;
     private float mLastY;
     private int mMotionEdge;
     private boolean mSaving = false;
-    private HighlightView mCropView;
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        if (mBitmapDisplayed.getBitmap() != null) {
-            mCropView.mMatrix.set(getImageMatrix());
-            mCropView.invalidate();
-            if (mCropView.mIsFocused) {
-                centerBasedOnHighlightView(mCropView);
-            }
-        }
+    public CropImageView(Context context) {
+        super(context);
     }
 
     public CropImageView(Context context, AttributeSet attrs) {
@@ -38,47 +29,51 @@ public class CropImageView  extends ImageViewTouchBase {
     }
 
     @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (mBitmapDisplayed.getBitmap() != null) {
+            mCropView.setMatrixValue(getImageMatrix());
+            mCropView.invalidate();
+            if (mCropView.hasFocus()) {
+                centerBasedOnHighlightView(mCropView);
+            }
+        }
+    }
+
+    @Override
     protected void zoomTo(float scale, float centerX, float centerY) {
         super.zoomTo(scale, centerX, centerY);
-        mCropView.mMatrix.set(getImageMatrix());
+        mCropView.setMatrixValue(getImageMatrix());
         mCropView.invalidate();
     }
 
     @Override
     protected void zoomIn() {
         super.zoomIn();
-        mCropView.mMatrix.set(getImageMatrix());
+        mCropView.setMatrixValue(getImageMatrix());
         mCropView.invalidate();
     }
 
     @Override
     protected void zoomOut() {
         super.zoomOut();
-        mCropView.mMatrix.set(getImageMatrix());
+        mCropView.setMatrixValue(getImageMatrix());
         mCropView.invalidate();
     }
 
     @Override
     protected void postTranslate(float deltaX, float deltaY) {
         super.postTranslate(deltaX, deltaY);
-        mCropView.mMatrix.postTranslate(deltaX, deltaY);
+        mCropView.postTranslate(deltaX, deltaY);
         mCropView.invalidate();
     }
 
-    // According to the event's position, change the focus to the first
-    // hitting cropping rectangle.
-    private void recomputeFocus(MotionEvent event) {
-        mCropView.setFocus(false);
-        mCropView.invalidate();
-
-        int edge = mCropView.getHit(event.getX(), event.getY());
-        if (edge != HighlightView.GROW_NONE) {
-            if (!mCropView.hasFocus()) {
-                mCropView.setFocus(true);
-                mCropView.invalidate();
-            }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if(null != mCropView) {
+            mCropView.draw(canvas);
         }
-        invalidate();
     }
 
     @Override
@@ -144,9 +139,26 @@ public class CropImageView  extends ImageViewTouchBase {
         return true;
     }
 
+    public void setCropView(HighlightView hv) {
+        this.mCropView = hv;
+        invalidate();
+    }
+
+    public HighlightView getCropView() {
+        return this.mCropView;
+    }
+
+    public Rect getCropRect() {
+        return this.mCropView.getCropRect();
+    }
+
+    public void setSaving(boolean isSaving) {
+        this.mSaving = isSaving;
+    }
+
     // Pan the displayed image to make sure the cropping rectangle is visible.
     private void ensureVisible(HighlightView hv) {
-        Rect r = hv.mDrawRect;
+        Rect r = hv.getDrawRect();
 
         int panDeltaX1 = Math.max(0, getLeft() - r.left);
         int panDeltaX2 = Math.min(0, getRight() - r.right);
@@ -165,7 +177,7 @@ public class CropImageView  extends ImageViewTouchBase {
     // If the cropping rectangle's size changed significantly, change the
     // view's center and scale according to the cropping rectangle.
     private void centerBasedOnHighlightView(HighlightView hv) {
-        Rect drawRect = hv.mDrawRect;
+        Rect drawRect = hv.getDrawRect();
 
         float width = drawRect.width();
         float height = drawRect.height();
@@ -181,7 +193,8 @@ public class CropImageView  extends ImageViewTouchBase {
         zoom = Math.max(1F, zoom);
 
         if ((Math.abs(zoom - getScale()) / zoom) > .1) {
-            float[] coordinates = new float[] { hv.mCropRect.centerX(), hv.mCropRect.centerY() };
+            Rect rect = hv.getCropRect();
+            float[] coordinates = new float[] { rect.centerX(), rect.centerY() };
             getImageMatrix().mapPoints(coordinates);
             zoomTo(zoom, coordinates[0], coordinates[1], 300F); // CR: 300.0f.
         }
@@ -189,28 +202,19 @@ public class CropImageView  extends ImageViewTouchBase {
         ensureVisible(hv);
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        if(null != mCropView) {
-            mCropView.draw(canvas);
+    // According to the event's position, change the focus to the first
+    // hitting cropping rectangle.
+    private void recomputeFocus(MotionEvent event) {
+        mCropView.setFocus(false);
+        mCropView.invalidate();
+
+        int edge = mCropView.getHit(event.getX(), event.getY());
+        if (edge != HighlightView.GROW_NONE) {
+            if (!mCropView.hasFocus()) {
+                mCropView.setFocus(true);
+                mCropView.invalidate();
+            }
         }
-    }
-
-    public void setCropView(HighlightView hv) {
-        this.mCropView = hv;
         invalidate();
-    }
-
-    public HighlightView getCropView() {
-        return this.mCropView;
-    }
-
-    public Rect getCropRect() {
-        return this.mCropView.getCropRect();
-    }
-
-    public void setSaving(boolean isSaving) {
-        this.mSaving = isSaving;
     }
 }
