@@ -21,7 +21,7 @@ public class CropImageView  extends ImageViewTouchBase {
     private boolean mSaving = false;
 
     public CropImageView(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public CropImageView(Context context, AttributeSet attrs) {
@@ -174,8 +174,11 @@ public class CropImageView  extends ImageViewTouchBase {
         }
     }
 
-    // If the cropping rectangle's size changed significantly, change the
-    // view's center and scale according to the cropping rectangle.
+    /**
+     * If the cropping rectangle's size changed significantly, change the<br/>
+     * view's center and scale according to the cropping rectangle.
+     * @param hv
+     */
     private void centerBasedOnHighlightView(HighlightView hv) {
         Rect drawRect = hv.getDrawRect();
 

@@ -24,6 +24,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.util.Log;
 import android.view.View;
 
 import com.opensource.imagecrop.R;
@@ -40,7 +42,7 @@ public class HighlightView {
 
     @SuppressWarnings("unused")
     private static final String TAG = "HighlightView";
-    private View mContext; // The View displaying the image.
+    View mContext; // The View displaying the image.
     private boolean mIsFocused;
     private boolean mHidden;
 
@@ -98,13 +100,6 @@ public class HighlightView {
         return null != mMatrix && mMatrix.postTranslate(deltaX, deltaY);
     }
 
-
-    public void setTranslate(float deltaX, float deltaY) {
-        if(null == mMatrix) {
-            return;
-        }
-        mMatrix.setTranslate(deltaX, deltaY);
-    }
 
     /**
      * Set mode
@@ -372,7 +367,20 @@ public class HighlightView {
                 path.addRect(new RectF(mDrawRect), Path.Direction.CW);
                 mOutlinePaint.setColor(0xFFFF8A00);
             }
-            canvas.clipPath(path, Region.Op.DIFFERENCE);
+            try {
+                canvas.clipPath(path, Region.Op.DIFFERENCE);
+            } catch (UnsupportedOperationException e) {
+                e.printStackTrace();
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    mContext.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+                    try {
+                        canvas.clipPath(path, Region.Op.DIFFERENCE);
+                    } catch (UnsupportedOperationException e2) {
+                        e2.printStackTrace();
+                        Log.e(TAG, "Device not supported");
+                    }
+                }
+            }
             canvas.drawRect(viewDrawingRect, hasFocus() ? mFocusPaint : mNoFocusPaint);
 
             canvas.restore();
@@ -430,7 +438,7 @@ public class HighlightView {
         mResizeDrawableDiagonal = resources.getDrawable(R.drawable.ic_crop_auto);
     }
 
-    public static enum ModifyMode {
+    public enum ModifyMode {
         None, Move, Grow
     }
 }
