@@ -12,7 +12,8 @@ public class CropConfig {
     public static final String EXTRA_CIRCLE_CROP = "circleCrop";
     
     /**
-     * 裁剪输出文件,Uri类型
+     * 裁剪输出文件,Uri类型，请注意，这个参数不能也{@link #EXTRA_RETURN_DATA}一起使用，否则无效，
+     * {@link #EXTRA_RETURN_DATA}拥有更高的优先级。
      */
     public static final String EXTRA_OUTPUT = "output";
     
@@ -27,7 +28,8 @@ public class CropConfig {
     public static final String EXTRA_DATA = "data";
     
     /**
-     * 是否在ActivityResult中返回图片数据，boolean类型，返回的数据是int [] 类型二进制数组
+     * 是否在ActivityResult中返回图片数据，boolean类型，返回的数据是Bitmap类型，
+     * 返回数据中的key为{@link #EXTRA_DATA} value=data
      */
     public static final String EXTRA_RETURN_DATA = "return-data";
     

@@ -16,6 +16,10 @@
 
 package com.opensource.imagecrop;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -39,10 +43,6 @@ import android.view.WindowManager;
 import com.opensource.imagecrop.utils.Util;
 import com.opensource.imagecrop.widget.CropImageView;
 import com.opensource.imagecrop.widget.HighlightView;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * The activity can crop specific region of interest from an image.
@@ -354,9 +354,8 @@ public class CropImageActivity extends MonitoredActivity {
             // does not exist yet.
             while (true) {
                 x += 1;
-                String candidate = directory.toString() + "/" + fileName + "-" + x + ".jpg";
-                boolean exists = (new File(candidate)).exists();
-                if (!exists) { // CR: inline the expression for exists
+                File candidateFile = new File(directory, fileName + "-" + x + ".jpg");
+                if (!candidateFile.exists()) { // CR: inline the expression for exists
                                // here--it's clear enough.
                     break;
                 }
